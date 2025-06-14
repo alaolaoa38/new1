@@ -2,15 +2,17 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Звездный Кликер</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Russo+One&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --neon-glow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 165, 0, 0.6);
-            --header-height: 70px;
-            --footer-height: 80px;
+            --header-height: 60px;
+            --footer-height: 70px;
+            --gold: #FFD700;
+            --dark-purple: #1a1a3a;
         }
         
         * {
@@ -21,16 +23,42 @@
         
         body {
             font-family: 'Montserrat', sans-serif;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             background: linear-gradient(-45deg, #0f0524, #1a1a3a, #2d1b4e, #3a1b6e);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             color: white;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
             cursor: default;
+        }
+
+        /* Контейнер для центрирования контента */
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 15px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 750px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                max-width: 970px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1024px;
+            }
         }
 
         /* Анимированные звезды на фоне */
@@ -44,59 +72,24 @@
             filter: blur(0.5px);
         }
 
-        /* Большие звезды для глубокого фона */
-        .star-bg {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: rotate linear infinite;
-            z-index: -1;
-            filter: blur(0.8px);
-        }
-
-        /* Вращающиеся созвездия */
-        .constellation {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: rotate linear infinite reverse;
-            z-index: -1;
-        }
-
-        .constellation::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, transparent 60%, rgba(255,215,0,0.02) 100%);
-            border-radius: 50%;
-        }
-
         @keyframes float {
             0% {
-                transform: translateY(100vh) rotate(0deg);
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
                 opacity: 1;
             }
             100% {
-                transform: translateY(-20px) rotate(360deg);
+                transform: translateY(-20px) translateX(calc(var(--move-x) * 100px)) rotate(360deg);
                 opacity: 0;
             }
         }
 
-        @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Эффект при клике на фон */
+        /* Эффект при клике */
         .click-effect {
             position: absolute;
             width: 10px;
@@ -109,45 +102,10 @@
             filter: blur(1px);
         }
 
-        /* Эффект пульсации для глубокого фона */
-        .pulse-effect {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255,215,0,0.02) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: pulseEffect 8s ease infinite;
-            z-index: -1;
-            opacity: 0;
-        }
-
         @keyframes clickEffect {
-            0% {
-                transform: scale(0);
-                opacity: 1;
-            }
-            70% {
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(15);
-                opacity: 0;
-            }
-        }
-
-        @keyframes pulseEffect {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-            50% {
-                opacity: 0.1;
-            }
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
+            0% { transform: scale(0); opacity: 1; }
+            70% { opacity: 0.7; }
+            100% { transform: scale(15); opacity: 0; }
         }
 
         @keyframes gradientBG {
@@ -164,45 +122,49 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 100;
             flex-shrink: 0;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            padding: 0 15px;
         }
         
         .profile-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
         
         .profile-avatar {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: linear-gradient(45deg, #FF8C00, #FFD700);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
         }
         
         .profile-name {
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
         }
         
         .balance-header {
             background: rgba(255, 255, 255, 0.15);
             border-radius: 20px;
-            padding: 8px 16px;
+            padding: 6px 12px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             cursor: pointer;
             transition: all 0.3s;
-            height: 40px;
+            height: 36px;
+            font-size: 14px;
         }
         
         .balance-header:hover {
@@ -215,15 +177,17 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            overflow-y: auto;
+            padding: 15px;
             width: 100%;
+            margin-top: var(--header-height);
+            margin-bottom: var(--footer-height);
+            overflow-y: auto;
         }
         
         .section {
             display: none;
             width: 100%;
-            max-width: 400px;
+            max-width: 100%;
             animation: fadeIn 0.3s;
             flex-direction: column;
             align-items: center;
@@ -244,26 +208,33 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            margin: 20px 0;
+            margin: 15px 0;
             position: relative;
+            width: 100%;
         }
         
         h1 {
             font-family: 'Russo One', sans-serif;
             font-weight: 400;
-            font-size: 32px;
-            margin-bottom: 15px;
+            font-size: 28px;
+            margin-bottom: 10px;
             text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
             letter-spacing: 1px;
-            color: #FFD700;
+            color: var(--gold);
             text-align: center;
             width: 100%;
         }
+
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+        }
         
         .balance-display {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            margin: 10px 0 25px;
+            margin: 10px 0 20px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -271,8 +242,8 @@
         }
         
         .clicker-btn {
-            width: 200px;
-            height: 200px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0) 70%);
             border: 4px solid rgba(255, 215, 0, 0.3);
@@ -282,7 +253,25 @@
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+
+        @media (min-width: 768px) {
+            .clicker-btn {
+                width: 200px;
+                height: 200px;
+            }
+        }
+        
+        .clicker-btn::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
+            animation: pulseGlow 2s infinite alternate;
         }
         
         .clicker-btn:active {
@@ -291,11 +280,19 @@
         }
         
         .star-icon {
-            font-size: 90px;
-            color: gold;
+            font-size: 70px;
+            color: var(--gold);
             text-shadow: var(--neon-glow);
             animation: pulse 2s infinite alternate;
             user-select: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (min-width: 768px) {
+            .star-icon {
+                font-size: 90px;
+            }
         }
         
         @keyframes pulse {
@@ -303,56 +300,68 @@
             to { transform: scale(1.05); opacity: 1; }
         }
         
+        @keyframes pulseGlow {
+            from { transform: scale(0.9); opacity: 0.5; }
+            to { transform: scale(1.1); opacity: 0.8; }
+        }
+        
         .click-info {
-            margin-top: 15px;
-            font-size: 16px;
+            margin-top: 10px;
+            font-size: 14px;
             opacity: 0.9;
             text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .click-info {
+                font-size: 16px;
+            }
         }
         
         /* Стили для бустов */
         .boost-card {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 10px 0;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 8px 0;
             width: 100%;
             max-width: 350px;
-            border-left: 4px solid #FFD700;
+            border-left: 4px solid var(--gold);
         }
         
         .boost-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             margin-bottom: 5px;
-            color: #FFD700;
+            color: var(--gold);
         }
         
         .boost-price {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin: 10px 0;
+            margin: 8px 0;
             display: flex;
             align-items: center;
             gap: 5px;
         }
         
         .boost-desc {
-            font-size: 14px;
+            font-size: 13px;
             opacity: 0.8;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .boost-btn {
             background: linear-gradient(45deg, #9C27B0, #E91E63);
             border: none;
             border-radius: 50px;
-            padding: 12px 20px;
+            padding: 10px 15px;
             color: white;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             transition: all 0.3s;
+            font-size: 14px;
         }
         
         .boost-btn:disabled {
@@ -364,7 +373,7 @@
         .divider {
             height: 1px;
             background: rgba(255, 255, 255, 0.1);
-            margin: 15px 0;
+            margin: 12px 0;
             width: 100%;
         }
         
@@ -377,57 +386,59 @@
         .friends-header {
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
-            color: #FFD700;
+            color: var(--gold);
         }
         
         .referral-card {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
             width: 100%;
         }
         
         .referral-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: center;
         }
         
         .referral-reward {
-            font-size: 16px;
-            margin-bottom: 20px;
+            font-size: 15px;
+            margin-bottom: 15px;
             text-align: center;
-            color: #FFD700;
+            color: var(--gold);
         }
         
         .invite-btn {
             background: linear-gradient(45deg, #00BCD4, #3F51B5);
             border: none;
             border-radius: 50px;
-            padding: 12px 20px;
+            padding: 10px 15px;
             color: white;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            margin: 15px 0;
+            margin: 12px 0;
             transition: all 0.3s;
+            font-size: 14px;
         }
         
         .referral-stats {
             font-weight: 600;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 12px;
+            font-size: 14px;
         }
         
         /* Стили для профиля */
         .profile-info-container {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 15px;
             width: 100%;
             max-width: 350px;
         }
@@ -435,9 +446,10 @@
         .profile-row {
             display: flex;
             justify-content: space-between;
-            margin: 12px 0;
-            padding: 8px 0;
+            margin: 10px 0;
+            padding: 6px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
         }
         
         .profile-label {
@@ -452,16 +464,17 @@
             background: linear-gradient(45deg, #FF8C00, #FFD700);
             border: none;
             border-radius: 50px;
-            padding: 12px 20px;
-            color: #1a1a3a;
+            padding: 10px 15px;
+            color: var(--dark-purple);
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            margin-top: 15px;
+            margin-top: 12px;
             transition: all 0.3s;
+            font-size: 14px;
         }
         
-        /* Подвал */
+        /* Подвал с меню */
         .footer {
             height: var(--footer-height);
             background: rgba(20, 10, 40, 0.8);
@@ -472,13 +485,16 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 100;
             flex-shrink: 0;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
         }
         
         .menu-container {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            max-width: 500px;
+            max-width: 100%;
             padding: 0 10px;
         }
         
@@ -488,24 +504,35 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             transition: all 0.3s;
             opacity: 0.7;
             flex: 1;
             height: 100%;
-            padding: 10px 5px;
+            padding: 8px 5px;
         }
         
         .menu-item i {
-            font-size: 22px;
-            margin-bottom: 5px;
+            font-size: 20px;
+            margin-bottom: 3px;
+            display: inline-block;
         }
         
         .menu-item.active {
             opacity: 1;
-            color: #FFD700;
-            transform: translateY(-5px);
+            color: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        @media (min-width: 768px) {
+            .menu-item {
+                font-size: 12px;
+            }
+            
+            .menu-item i {
+                font-size: 22px;
+            }
         }
         
         /* Модальные окна */
@@ -521,13 +548,14 @@
             z-index: 200;
             align-items: center;
             justify-content: center;
+            padding: 15px;
         }
         
         .modal-content {
             background: rgba(30, 15, 60, 0.95);
-            border-radius: 20px;
-            padding: 25px;
-            width: 90%;
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
             max-width: 400px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -535,43 +563,26 @@
             overflow: hidden;
         }
         
-        .modal-content::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-            z-index: -1;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
         .modal-title {
             font-family: 'Russo One', sans-serif;
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #FFD700;
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--gold);
             text-align: center;
         }
         
         .withdraw-options {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
         }
         
         .withdraw-btn {
             background: rgba(255, 255, 255, 0.1);
             border: none;
-            border-radius: 10px;
-            padding: 12px;
+            border-radius: 8px;
+            padding: 10px;
             color: white;
             font-weight: 600;
             cursor: pointer;
@@ -579,74 +590,51 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-        }
-        
-        .withdraw-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255,215,0,0.2), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
-        }
-        
-        .withdraw-btn:hover::before {
-            transform: translateX(100%);
+            font-size: 14px;
         }
         
         .withdraw-btn span {
             display: block;
-            font-size: 18px;
-            color: #FFD700;
-            margin-top: 5px;
+            font-size: 16px;
+            color: var(--gold);
+            margin-top: 3px;
         }
         
         .close-modal {
             background: linear-gradient(45deg, #9C27B0, #E91E63);
             border: none;
             border-radius: 50px;
-            padding: 12px;
+            padding: 10px;
             color: white;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
             transition: all 0.3s;
-        }
-        
-        .close-modal:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
+            font-size: 14px;
         }
         
         .referral-link {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
             word-break: break-all;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .copy-btn {
             background: linear-gradient(45deg, #00BCD4, #3F51B5);
             border: none;
             border-radius: 50px;
-            padding: 12px 20px;
+            padding: 10px 15px;
             color: white;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
             transition: all 0.3s;
-        }
-        
-        .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 188, 212, 0.4);
+            font-size: 14px;
         }
         
         /* Кастомное уведомление */
@@ -657,19 +645,27 @@
             transform: translateX(-50%);
             background: rgba(30, 15, 60, 0.95);
             color: white;
-            padding: 15px 25px;
+            padding: 12px 20px;
             border-radius: 50px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             z-index: 300;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             animation: slideIn 0.3s, fadeOut 0.3s 2s forwards;
             border: 1px solid rgba(255, 215, 0, 0.3);
+            font-size: 14px;
+            max-width: 90%;
+        }
+
+        @media (min-width: 768px) {
+            .notification {
+                font-size: 16px;
+            }
         }
 
         .notification i {
-            color: #FFD700;
+            color: var(--gold);
         }
 
         @keyframes slideIn {
@@ -685,17 +681,18 @@
         /* Окно без звезд */
         .no-coins {
             text-align: center;
-            padding: 20px;
+            padding: 15px;
         }
 
         .no-coins-icon {
-            font-size: 50px;
+            font-size: 40px;
             color: rgba(255, 215, 0, 0.5);
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .no-coins-text {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 14px;
         }
         
         /* Прелоадер */
@@ -721,25 +718,25 @@
         }
 
         .loader {
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(255, 215, 0, 0.3);
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 215, 0, 0.3);
             border-radius: 50%;
-            border-top-color: #FFD700;
+            border-top-color: var(--gold);
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .loader-text {
             font-family: 'Russo One', sans-serif;
-            font-size: 24px;
-            color: #FFD700;
-            margin-bottom: 10px;
+            font-size: 22px;
+            color: var(--gold);
+            margin-bottom: 8px;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         .loader-subtext {
-            font-size: 16px;
+            font-size: 14px;
             color: rgba(255, 255, 255, 0.7);
         }
         
@@ -763,7 +760,7 @@
             <div class="profile-name" id="header-username">Игрок</div>
         </div>
         <div class="balance-header" id="balance-btn">
-            <span id="header-balance">0</span> ⭐
+            <span id="header-balance">14.8</span> ⭐
         </div>
     </div>
 
@@ -778,98 +775,100 @@
     
     <!-- Основной контент -->
     <div class="main-content" id="main-content">
-        <!-- Кликер -->
-        <div class="section active" id="clicker-section">
-            <h1>ЗВЕЗДНЫЙ КЛИКЕР</h1>
-            
-            <div class="balance-display">
-                <span id="coins">0</span> ⭐
-            </div>
-            
-            <div class="clicker-container">
-                <div class="clicker-btn" id="clicker-btn">
-                    <div class="star-icon">⭐</div>
-                </div>
-                <div class="click-info">
-                    +0.1 ⭐ за клик<br>
-                    <span id="boost-info">Без буста</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Бусты -->
-        <div class="section" id="boosts-section">
-            <h1>БУСТЫ</h1>
-            
-            <div class="boost-card">
-                <div class="boost-title">2X МНОЖИТЕЛЬ</div>
-                <div class="boost-price">50 ⭐</div>
-                <div class="boost-desc">Увеличивает доход от кликов</div>
-                <button class="boost-btn" data-price="50" data-multiplier="2">КУПИТЬ</button>
-            </div>
-            
-            <div class="divider"></div>
-            
-            <div class="boost-card">
-                <div class="boost-title">3X МНОЖИТЕЛЬ</div>
-                <div class="boost-price">100 ⭐</div>
-                <div class="boost-desc">Увеличивает доход от кликов</div>
-                <button class="boost-btn" data-price="100" data-multiplier="3">КУПИТЬ</button>
-            </div>
-            
-            <div class="divider"></div>
-            
-            <div class="boost-card">
-                <div class="boost-title">5X МНОЖИТЕЛЬ</div>
-                <div class="boost-price">200 ⭐</div>
-                <div class="boost-desc">Увеличивает доход от кликов</div>
-                <button class="boost-btn" data-price="200" data-multiplier="5">КУПИТЬ</button>
-            </div>
-        </div>
-        
-        <!-- Друзья -->
-        <div class="section" id="friends-section">
-            <h1>ДРУЗЬЯ</h1>
-            
-            <div class="referral-card">
-                <div class="referral-title">Приглашай друзей - Получай Награды!</div>
-                <div class="referral-reward">Каждый приглашенный друг = +10 ⭐</div>
+        <div class="container">
+            <!-- Кликер -->
+            <div class="section active" id="clicker-section">
+                <h1>ЗВЕЗДНЫЙ КЛИКЕР</h1>
                 
-                <button class="invite-btn" id="invite-btn">Пригласить друга</button>
-                
-                <div class="referral-stats">Приглашенные друзья: <span id="referral-count">0</span></div>
-            </div>
-        </div>
-        
-        <!-- Профиль -->
-        <div class="section" id="profile-section">
-            <h1>ПРОФИЛЬ</h1>
-            
-            <div class="profile-info-container">
-                <div class="profile-row">
-                    <span class="profile-label">ID:</span>
-                    <span class="profile-value" id="profile-id">123456</span>
-                </div>
-                <div class="profile-row">
-                    <span class="profile-label">Никнейм:</span>
-                    <span class="profile-value" id="profile-username">Игрок</span>
-                </div>
-                <div class="profile-row">
-                    <span class="profile-label">Звезд:</span>
-                    <span class="profile-value" id="profile-coins">0 ⭐</span>
-                </div>
-                <div class="profile-row">
-                    <span class="profile-label">Буст:</span>
-                    <span class="profile-value" id="profile-boost">Нет</span>
-                </div>
-                <div class="profile-row">
-                    <span class="profile-label">Приглашено:</span>
-                    <span class="profile-value" id="profile-referrals">0</span>
+                <div class="balance-display">
+                    <span id="coins">14.8</span> ⭐
                 </div>
                 
-                <button class="withdraw-btn-profile" id="profile-withdraw-btn">
-                    Вывести звезды
-                </button>
+                <div class="clicker-container">
+                    <div class="clicker-btn" id="clicker-btn">
+                        <div class="star-icon">⭐</div>
+                    </div>
+                    <div class="click-info">
+                        +0.1 ⭐ за клик<br>
+                        <span id="boost-info">Без буста</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Бусты -->
+            <div class="section" id="boosts-section">
+                <h1>БУСТЫ</h1>
+                
+                <div class="boost-card">
+                    <div class="boost-title">2X МНОЖИТЕЛЬ</div>
+                    <div class="boost-price">50 ⭐</div>
+                    <div class="boost-desc">Увеличивает доход от кликов</div>
+                    <button class="boost-btn" data-price="50" data-multiplier="2">КУПИТЬ</button>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="boost-card">
+                    <div class="boost-title">3X МНОЖИТЕЛЬ</div>
+                    <div class="boost-price">100 ⭐</div>
+                    <div class="boost-desc">Увеличивает доход от кликов</div>
+                    <button class="boost-btn" data-price="100" data-multiplier="3">КУПИТЬ</button>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="boost-card">
+                    <div class="boost-title">5X МНОЖИТЕЛЬ</div>
+                    <div class="boost-price">200 ⭐</div>
+                    <div class="boost-desc">Увеличивает доход от кликов</div>
+                    <button class="boost-btn" data-price="200" data-multiplier="5">КУПИТЬ</button>
+                </div>
+            </div>
+            
+            <!-- Друзья -->
+            <div class="section" id="friends-section">
+                <h1>ДРУЗЬЯ</h1>
+                
+                <div class="referral-card">
+                    <div class="referral-title">Приглашай друзей - Получай Награды!</div>
+                    <div class="referral-reward">Каждый приглашенный друг = +10 ⭐</div>
+                    
+                    <button class="invite-btn" id="invite-btn">Пригласить друга</button>
+                    
+                    <div class="referral-stats">Приглашенные друзья: <span id="referral-count">0</span></div>
+                </div>
+            </div>
+            
+            <!-- Профиль -->
+            <div class="section" id="profile-section">
+                <h1>ПРОФИЛЬ</h1>
+                
+                <div class="profile-info-container">
+                    <div class="profile-row">
+                        <span class="profile-label">ID:</span>
+                        <span class="profile-value" id="profile-id">123456</span>
+                    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Никнейм:</span>
+                        <span class="profile-value" id="profile-username">Игрок</span>
+                    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Звезд:</span>
+                        <span class="profile-value" id="profile-coins">14.8 ⭐</span>
+                    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Буст:</span>
+                        <span class="profile-value" id="profile-boost">Нет</span>
+                    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Приглашено:</span>
+                        <span class="profile-value" id="profile-referrals">0</span>
+                    </div>
+                    
+                    <button class="withdraw-btn-profile" id="profile-withdraw-btn">
+                        Вывести звезды
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -938,15 +937,11 @@
     </div>
 
     <script>
-        // Удаляем зависимость от Telegram WebApp
-        // const tg = window.Telegram.WebApp;
-        // tg.expand();
-
         // Данные пользователя
         const userData = {
             id: 'user_' + Math.floor(Math.random() * 1000000).toString(),
             username: 'Игрок',
-            coins: parseFloat(localStorage.getItem('starCoins')) || 0,
+            coins: parseFloat(localStorage.getItem('starCoins')) || 14.8,
             boostMultiplier: 1,
             activeBoost: null,
             boostEndTime: 0,
@@ -967,21 +962,19 @@
 
         // Создание звезд на фоне
         function createStars() {
-            const starCount = 50;
-            const bgStarCount = 10;
-            const constellationCount = 3;
+            const starCount = 30;
             
             // Мелкие звезды переднего плана
             for (let i = 0; i < starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 
-                // Случайные параметры
                 const size = Math.random() * 3 + 1;
                 const posX = Math.random() * 100;
                 const duration = Math.random() * 15 + 10;
                 const delay = Math.random() * 5;
                 const opacity = Math.random() * 0.5 + 0.3;
+                const moveX = Math.random() * 2 - 1;
                 
                 star.style.width = `${size}px`;
                 star.style.height = `${size}px`;
@@ -990,85 +983,9 @@
                 star.style.animationDuration = `${duration}s`;
                 star.style.animationDelay = `${delay}s`;
                 star.style.opacity = opacity;
+                star.style.setProperty('--move-x', moveX);
                 
                 document.body.appendChild(star);
-            }
-            
-            // Большие звезды заднего плана
-            for (let i = 0; i < bgStarCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star-bg';
-                
-                const size = Math.random() * 8 + 5;
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const duration = Math.random() * 120 + 60;
-                const delay = Math.random() * 30;
-                const opacity = Math.random() * 0.2 + 0.1;
-                
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                star.style.left = `${posX}vw`;
-                star.style.top = `${posY}vh`;
-                star.style.animationDuration = `${duration}s`;
-                star.style.animationDelay = `${delay}s`;
-                star.style.opacity = opacity;
-                
-                document.body.appendChild(star);
-            }
-            
-            // Вращающиеся созвездия
-            for (let i = 0; i < constellationCount; i++) {
-                const constellation = document.createElement('div');
-                constellation.className = 'constellation';
-                
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const duration = Math.random() * 300 + 200;
-                const delay = Math.random() * 100;
-                
-                constellation.style.left = `${posX}vw`;
-                constellation.style.top = `${posY}vh`;
-                constellation.style.animationDuration = `${duration}s`;
-                constellation.style.animationDelay = `${delay}s`;
-                
-                // Создаем звезды внутри созвездия
-                const starsInside = Math.floor(Math.random() * 5) + 3;
-                for (let j = 0; j < starsInside; j++) {
-                    const star = document.createElement('div');
-                    star.style.position = 'absolute';
-                    star.style.width = `${Math.random() * 4 + 2}px`;
-                    star.style.height = star.style.width;
-                    star.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-                    star.style.borderRadius = '50%';
-                    star.style.filter = 'blur(0.5px)';
-                    
-                    // Позиционируем звезды внутри созвездия
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = Math.random() * 60 + 20;
-                    star.style.left = `calc(50% + ${Math.cos(angle) * distance}px)`;
-                    star.style.top = `calc(50% + ${Math.sin(angle) * distance}px)`;
-                    
-                    constellation.appendChild(star);
-                }
-                
-                document.body.appendChild(constellation);
-            }
-            
-            // Создаем пульсирующие эффекты для глубины
-            for (let i = 0; i < 2; i++) {
-                const pulse = document.createElement('div');
-                pulse.className = 'pulse-effect';
-                
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const delay = Math.random() * 5;
-                
-                pulse.style.left = `${posX}vw`;
-                pulse.style.top = `${posY}vh`;
-                pulse.style.animationDelay = `${delay}s`;
-                
-                document.body.appendChild(pulse);
             }
         }
 
@@ -1078,49 +995,23 @@
             
             mainContent.addEventListener('click', function(e) {
                 if (e.target === mainContent) {
-                    // Эффект клика
-                    const clickEffect = document.createElement('div');
-                    clickEffect.className = 'click-effect';
-                    clickEffect.style.left = `${e.clientX - 5}px`;
-                    clickEffect.style.top = `${e.clientY - 5}px`;
-                    
-                    document.body.appendChild(clickEffect);
-                    
-                    // Запускаем анимацию
-                    setTimeout(() => {
-                        clickEffect.style.animation = 'clickEffect 0.6s ease-out forwards';
-                    }, 10);
-                    
-                    // Удаляем элемент после анимации
-                    setTimeout(() => {
-                        clickEffect.remove();
-                    }, 600);
-                    
-                    // Создаем дополнительные звезды при клике
-                    for (let i = 0; i < 3; i++) {
-                        const star = document.createElement('div');
-                        star.className = 'star';
-                        
-                        const size = Math.random() * 2 + 1;
-                        const duration = Math.random() * 5 + 3;
-                        const opacity = Math.random() * 0.7 + 0.3;
-                        
-                        star.style.width = `${size}px`;
-                        star.style.height = `${size}px`;
-                        star.style.left = `${e.clientX + (Math.random() * 40 - 20)}px`;
-                        star.style.top = `${e.clientY + (Math.random() * 40 - 20)}px`;
-                        star.style.animationDuration = `${duration}s`;
-                        star.style.opacity = opacity;
-                        
-                        document.body.appendChild(star);
-                        
-                        // Удаляем звезду после анимации
-                        setTimeout(() => {
-                            star.remove();
-                        }, duration * 1000);
-                    }
+                    createClickEffect(e.clientX, e.clientY);
                 }
             });
+        }
+
+        function createClickEffect(x, y) {
+            const clickEffect = document.createElement('div');
+            clickEffect.className = 'click-effect';
+            clickEffect.style.left = `${x - 5}px`;
+            clickEffect.style.top = `${y - 5}px`;
+            
+            document.body.appendChild(clickEffect);
+            
+            setTimeout(() => {
+                clickEffect.style.animation = 'clickEffect 0.6s ease-out forwards';
+                setTimeout(() => clickEffect.remove(), 600);
+            }, 10);
         }
 
         // Показ кастомного уведомления
@@ -1131,10 +1022,7 @@
             
             document.body.appendChild(notification);
             
-            // Удаляем уведомление после анимации
-            setTimeout(() => {
-                notification.remove();
-            }, 2300);
+            setTimeout(() => notification.remove(), 2300);
         }
 
         // Элементы
@@ -1169,63 +1057,37 @@
 
         // Инициализация
         function init() {
-            // Создаем звезды на фоне
             createStars();
-            
-            // Настраиваем эффект при клике на фон
             setupBackgroundClickEffect();
             
-            // Скрываем все модальные окна
             withdrawModal.style.display = 'none';
             referralModal.style.display = 'none';
             
-            // Установка данных пользователя
             headerUsername.textContent = userData.username;
             profileId.textContent = userData.id;
             profileUsername.textContent = userData.username;
             profileReferrals.textContent = userData.referrals;
             referralCount.textContent = userData.referrals;
             updateBalance();
-            
-            // Проверка активного буста
             checkActiveBoost();
             
             // Клик по звезде
             clickerBtn.addEventListener('click', () => {
-                // Анимация
                 clickerBtn.style.transform = 'scale(0.95)';
                 setTimeout(() => clickerBtn.style.transform = 'scale(1)', 100);
                 
-                // Добавляем звезды
                 userData.coins += 0.1 * userData.boostMultiplier;
                 updateBalance();
                 localStorage.setItem('starCoins', userData.coins);
                 
-                // Создаем эффект клика
-                const clickEffect = document.createElement('div');
-                clickEffect.className = 'click-effect';
                 const rect = clickerBtn.getBoundingClientRect();
-                clickEffect.style.left = `${rect.left + rect.width/2}px`;
-                clickEffect.style.top = `${rect.top + rect.height/2}px`;
-                
-                document.body.appendChild(clickEffect);
-                
-                // Запускаем анимацию
-                setTimeout(() => {
-                    clickEffect.style.animation = 'clickEffect 0.6s ease-out forwards';
-                }, 10);
-                
-                // Удаляем элемент после анимации
-                setTimeout(() => {
-                    clickEffect.remove();
-                }, 600);
+                createClickEffect(rect.left + rect.width/2, rect.top + rect.height/2);
             });
             
             // Клик по балансу
             balanceBtn.addEventListener('click', () => {
                 withdrawModal.style.display = 'flex';
                 
-                // Проверяем баланс и показываем соответствующее содержимое
                 if (userData.coins >= 50) {
                     withdrawContent.style.display = 'block';
                     noCoinsContent.style.display = 'none';
@@ -1235,15 +1097,10 @@
                 }
             });
             
-            // Закрытие модального окна
-            closeModal.addEventListener('click', () => {
-                withdrawModal.style.display = 'none';
-            });
-            
-            // Закрытие модального окна без звезд
-            closeNoCoinsModal.addEventListener('click', () => {
-                withdrawModal.style.display = 'none';
-            });
+            // Закрытие модальных окон
+            closeModal.addEventListener('click', () => withdrawModal.style.display = 'none');
+            closeNoCoinsModal.addEventListener('click', () => withdrawModal.style.display = 'none');
+            closeReferralModal.addEventListener('click', () => referralModal.style.display = 'none');
             
             // Кнопки вывода
             withdrawBtns.forEach(btn => {
@@ -1271,16 +1128,14 @@
                     if (userData.coins >= price) {
                         userData.coins -= price;
                         userData.boostMultiplier = multiplier;
-                        userData.boostEndTime = Date.now() + 30000; // 30 секунд
+                        userData.boostEndTime = Date.now() + 30000;
                         
-                        // Обновляем отображение
                         updateBalance();
                         updateBoostInfo();
                         this.disabled = true;
                         this.textContent = 'АКТИВЕН';
                         this.style.background = 'linear-gradient(45deg, #4CAF50, #8BC34A)';
                         
-                        // Запускаем таймер
                         setTimeout(() => {
                             if (userData.boostMultiplier === multiplier) {
                                 userData.boostMultiplier = 1;
@@ -1299,16 +1154,15 @@
             });
             
             // Скрытие прелоадера
-            setTimeout(function() {
+            setTimeout(() => {
                 preloader.style.opacity = '0';
                 preloader.style.visibility = 'hidden';
             }, 2000);
             
-            // Обработчик для кнопки вывода в профиле
+            // Вывод в профиле
             profileWithdrawBtn.addEventListener('click', function() {
                 withdrawModal.style.display = 'flex';
                 
-                // Проверяем баланс и показываем соответствующее содержимое
                 if (userData.coins >= 50) {
                     withdrawContent.style.display = 'block';
                     noCoinsContent.style.display = 'none';
@@ -1320,33 +1174,28 @@
             
             // Приглашение друзей
             inviteBtn.addEventListener('click', () => {
-                const referralLink = `https://example.com?ref=${userData.referralCode}`;
-                referralLinkText.textContent = referralLink;
+                referralLinkText.textContent = `https://example.com?ref=${userData.referralCode}`;
                 referralModal.style.display = 'flex';
             });
             
-            // Копирование реферальной ссылки
+            // Копирование ссылки
             copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(referralLinkText.textContent).then(() => {
-                    showNotification('Ссылка скопирована!');
-                    referralModal.style.display = 'none';
-                }).catch(err => {
-                    console.error('Ошибка копирования: ', err);
-                    // Альтернативный метод для браузеров без Clipboard API
-                    const textarea = document.createElement('textarea');
-                    textarea.value = referralLinkText.textContent;
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                    showNotification('Ссылка скопирована!');
-                    referralModal.style.display = 'none';
-                });
-            });
-            
-            // Закрытие модального окна реферальной ссылки
-            closeReferralModal.addEventListener('click', () => {
-                referralModal.style.display = 'none';
+                navigator.clipboard.writeText(referralLinkText.textContent)
+                    .then(() => {
+                        showNotification('Ссылка скопирована!');
+                        referralModal.style.display = 'none';
+                    })
+                    .catch(err => {
+                        console.error('Ошибка копирования: ', err);
+                        const textarea = document.createElement('textarea');
+                        textarea.value = referralLinkText.textContent;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        showNotification('Ссылка скопирована!');
+                        referralModal.style.display = 'none';
+                    });
             });
             
             // Переключение разделов
@@ -1354,11 +1203,9 @@
                 item.addEventListener('click', () => {
                     const sectionId = item.getAttribute('data-section');
                     
-                    // Обновляем активный пункт меню
                     menuItems.forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
                     
-                    // Показываем только выбранный раздел
                     sections.forEach(section => section.classList.remove('active'));
                     document.getElementById(sectionId).classList.add('active');
                 });
@@ -1397,7 +1244,6 @@
                 const timeLeft = Math.ceil((userData.boostEndTime - Date.now()) / 1000);
                 boostInfo.textContent = `Буст x${userData.boostMultiplier} (${timeLeft} сек)`;
                 
-                // Запускаем таймер
                 const timer = setInterval(() => {
                     const timeLeft = Math.ceil((userData.boostEndTime - Date.now()) / 1000);
                     if (timeLeft <= 0) {
@@ -1405,7 +1251,6 @@
                         userData.boostMultiplier = 1;
                         updateBoostInfo();
                         
-                        // Восстанавливаем кнопки бустов
                         boostButtons.forEach(btn => {
                             if (btn.disabled) {
                                 btn.disabled = false;
