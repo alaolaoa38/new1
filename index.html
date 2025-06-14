@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Звездный Кликер</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Russo+One&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-glow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 165, 0, 0.6);
+            --header-height: 70px;
+            --footer-height: 80px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(-45deg, #0f0524, #1a1a3a, #2d1b4e, #3a1b6e);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Шапка */
+        .header {
+            height: var(--header-height);
+            background: rgba(20, 10, 40, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FF8C00, #FFD700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .profile-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .balance-header {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 40px;
+        }
+        
+        .balance-header:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        /* Основной контент */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .clicker-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        h1 {
+            font-family: 'Russo One', sans-serif;
+            font-weight: 400;
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+            letter-spacing: 1px;
+            color: #FFD700;
+        }
+        
+        .balance-display {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0 25px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .clicker-btn {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0) 70%);
+            border: 4px solid rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .clicker-btn:active {
+            transform: scale(0.95);
+            background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, rgba(255,215,0,0.1) 70%);
+        }
+        
+        .star-icon {
+            font-size: 90px;
+            color: gold;
+            text-shadow: var(--neon-glow);
+            animation: pulse 2s infinite alternate;
+            user-select: none;
+        }
+        
+        @keyframes pulse {
+            from { transform: scale(1); opacity: 0.9; }
+            to { transform: scale(1.05); opacity: 1; }
+        }
+        
+        .click-info {
+            margin-top: 15px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* Разделы */
+        .section {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.3s;
+        }
+        
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #0f0524, #1a1a3a, #2d1b4e, #3a1b6e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .preloader-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #FFD700;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loader-text {
+            font-family: 'Russo One', sans-serif;
+            font-size: 24px;
+            color: #FFD700;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .loader-subtext {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .section.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Бусты */
+        .boost-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        .boost-info {
+            flex: 1;
+        }
+        
+        .boost-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .boost-desc {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .boost-btn {
+            background: linear-gradient(45deg, #9C27B0, #E91E63);
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            min-width: 90px;
+            text-align: center;
+        }
+        
+        .boost-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        /* Рефералы */
+        .referral-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        .referral-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .referral-desc {
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+        
+        .invite-btn {
+            background: linear-gradient(45deg, #00BCD4, #3F51B5);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .invite-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 188, 212, 0.4);
+        }
+        
+        /* Профиль */
+        .profile-info-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .profile-label {
+            opacity: 0.8;
+        }
+        
+        .profile-value {
+            font-weight: 600;
+        }
+        
+        /* Кнопка вывода в профиле */
+        .withdraw-btn-profile {
+            background: linear-gradient(45deg, #FF8C00, #FFD700);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: #1a1a3a;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .withdraw-btn-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .withdraw-btn-profile:active {
+            transform: translateY(1px);
+        }
+        
+        /* Подвал */
+        .footer {
+            height: var(--footer-height);
+            background: rgba(20, 10, 40, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        
+        .menu-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 10px;
+        }
+        
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.7;
+            flex: 1;
+            height: 100%;
+            padding: 10px 5px;
+        }
+        
+        .menu-item i {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .menu-item.active {
+            opacity: 1;
+            color: #FFD700;
+            transform: translateY(-5px);
+        }
+        
+        /* Исправленное выравнивание для заголовка раздела друзей */
+        #friends-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        #friends-section h1 {
+            text-align: center;
+            width: 100%;
+            padding: 0 20px;
+            margin-bottom: 15px;
+        }
+
+        /* Дополнительное выравнивание для контента раздела друзей */
+        #friends-section .section-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+		
+        /* Модальное окно - изначально скрыто */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(30, 15, 60, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-title {
+            font-family: 'Russo One', sans-serif;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #FFD700;
+            text-align: center;
+        }
+        
+        .withdraw-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .withdraw-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .withdraw-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .withdraw-btn span {
+            display: block;
+            font-size: 18px;
+            color: #FFD700;
+            margin-top: 5px;
+        }
+        
+        .close-modal {
+            background: linear-gradient(45deg, #9C27B0, #E91E63);
+            border: none;
+            border-radius: 50px;
+            padding: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <div class="header">
+        <div class="profile-info">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-name" id="header-username">@username</div>
+        </div>
+        <div class="balance-header" id="balance-btn">
+            <span id="header-balance">0</span> ⭐
+        </div>
+    </div>
+
+    <!-- Прелоадер -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="loader"></div>
+            <h2 class="loader-text">Звездный Кликер</h2>
+            <p class="loader-subtext">Загрузка...</p>
+        </div>
+    </div>
+    
+    <!-- Основной контент -->
+    <div class="main-content">
+        <!-- Кликер -->
+        <div class="section active" id="clicker-section">
+            <h1>ЗВЕЗДНЫЙ КЛИКЕР</h1>
+            
+            <div class="balance-display">
+                <span id="coins">0</span> ⭐
+            </div>
+            
+            <div class="clicker-container">
+                <div class="clicker-btn" id="clicker-btn">
+                    <div class="star-icon">⭐</div>
+                </div>
+                <div class="click-info">
+                    +0.1 ⭐ за клик<br>
+                    <span id="boost-info">Без буста</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Бусты -->
+        <div class="section" id="boosts-section">
+            <h1>🚀 БУСТЫ</h1>
+            
+            <div class="boost-card">
+                <div class="boost-info">
+                    <div class="boost-title">x2 Множитель</div>
+                    <div class="boost-desc">Увеличивает доход от кликов</div>
+                </div>
+                <button class="boost-btn" data-price="50" data-multiplier="2">50 ⭐</button>
+            </div>
+            
+            <div class="boost-card">
+                <div class="boost-info">
+                    <div class="boost-title">x3 Множитель</div>
+                    <div class="boost-desc">Увеличивает доход от кликов</div>
+                </div>
+                <button class="boost-btn" data-price="100" data-multiplier="3">100 ⭐</button>
+            </div>
+            
+            <div class="boost-card">
+                <div class="boost-info">
+                    <div class="boost-title">x5 Множитель</div>
+                    <div class="boost-desc">Увеличивает доход от кликов</div>
+                </div>
+                <button class="boost-btn" data-price="200" data-multiplier="5">200 ⭐</button>
+            </div>
+        </div>
+        
+        <!-- Друзья -->
+        <div class="section" id="friends-section">
+            <h1>👥 ДРУЗЬЯ</h1>
+            
+            <div class="section-content">
+                <div class="referral-card">
+                    <div class="referral-title">Приглашай друзей</div>
+                    <button class="invite-btn" id="invite-btn">ПРИГЛАСИТЬ ДРУГА</button>
+                </div>
+                
+                <div class="empty-state">
+                    Пока нет приглашенных друзей
+                </div>
+            </div>
+        </div>
+        
+        <!-- Профиль -->
+        <div class="section" id="profile-section">
+            <h1>👤 ПРОФИЛЬ</h1>
+            
+            <div class="profile-info-container">
+                <div class="profile-row">
+                    <span class="profile-label">ID:</span>
+                    <span class="profile-value" id="profile-id">123456789</span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Никнейм:</span>
+                    <span class="profile-value" id="profile-username">@username</span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Звезд:</span>
+                    <span class="profile-value" id="profile-coins">0 ⭐</span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Буст:</span>
+                    <span class="profile-value" id="profile-boost">Нет</span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Приглашено:</span>
+                    <span class="profile-value" id="profile-referrals">0</span>
+                </div>
+                
+                <button class="withdraw-btn-profile" id="profile-withdraw-btn">
+                    Вывести звезды
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Подвал с меню -->
+    <div class="footer">
+        <div class="menu-container">
+            <div class="menu-item active" data-section="clicker-section">
+                <i class="fas fa-star"></i>
+                <span>Кликер</span>
+            </div>
+            <div class="menu-item" data-section="boosts-section">
+                <i class="fas fa-bolt"></i>
+                <span>Бусты</span>
+            </div>
+            <div class="menu-item" data-section="friends-section">
+                <i class="fas fa-users"></i>
+                <span>Друзья</span>
+            </div>
+            <div class="menu-item" data-section="profile-section">
+                <i class="fas fa-user"></i>
+                <span>Профиль</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно вывода -->
+    <div class="modal" id="withdraw-modal">
+        <div class="modal-content">
+            <div class="modal-title">ВЫВОД ЗВЕЗД</div>
+            <div class="withdraw-options">
+                <button class="withdraw-btn" data-amount="50">50 <span>⭐</span></button>
+                <button class="withdraw-btn" data-amount="100">100 <span>⭐</span></button>
+                <button class="withdraw-btn" data-amount="250">250 <span>⭐</span></button>
+                <button class="withdraw-btn" data-amount="500">500 <span>⭐</span></button>
+                <button class="withdraw-btn" data-amount="1000">1000 <span>⭐</span></button>
+                <button class="withdraw-btn" data-amount="2500">2500 <span>⭐</span></button>
+                <button class="withdraw-btn" data-amount="5000">5000 <span>⭐</span></button>
+                <button class="withdraw-btn" data-amount="10000">10000 <span>⭐</span></button>
+            </div>
+            <button class="close-modal" id="close-modal">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Данные пользователя
+        const userData = {
+            id: tg.initDataUnsafe.user?.id || Math.floor(Math.random() * 10000000000).toString(),
+            username: tg.initDataUnsafe.user?.username || ('@user' + Math.floor(Math.random() * 1000)),
+            coins: parseFloat(localStorage.getItem('starCoins')) || 0,
+            boostMultiplier: 1,
+            activeBoost: null,
+            boostEndTime: 0,
+            referrals: parseInt(localStorage.getItem('referralsCount')) || 0,
+            referralCode: localStorage.getItem('referralCode') || generateReferralCode()
+        };
+
+        // Генерация реферального кода
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            localStorage.setItem('referralCode', result);
+            return result;
+        }
+
+        // Элементы
+        const clickerBtn = document.getElementById('clicker-btn');
+        const coinsDisplay = document.getElementById('coins');
+        const headerBalance = document.getElementById('header-balance');
+        const headerUsername = document.getElementById('header-username');
+        const balanceBtn = document.getElementById('balance-btn');
+        const boostInfo = document.getElementById('boost-info');
+        const profileId = document.getElementById('profile-id');
+        const profileUsername = document.getElementById('profile-username');
+        const profileCoins = document.getElementById('profile-coins');
+        const profileBoost = document.getElementById('profile-boost');
+        const profileReferrals = document.getElementById('profile-referrals');
+        const inviteBtn = document.getElementById('invite-btn');
+        const boostButtons = document.querySelectorAll('.boost-btn');
+        const withdrawModal = document.getElementById('withdraw-modal');
+        const closeModal = document.getElementById('close-modal');
+        const withdrawBtns = document.querySelectorAll('.withdraw-btn');
+        const menuItems = document.querySelectorAll('.menu-item');
+        const sections = document.querySelectorAll('.section');
+        const profileWithdrawBtn = document.getElementById('profile-withdraw-btn');
+        const preloader = document.getElementById('preloader');
+
+        // Инициализация
+        function init() {
+			document.getElementById('withdraw-modal').style.display = 'none';
+            // Установка данных пользователя
+            headerUsername.textContent = userData.username;
+            profileId.textContent = userData.id;
+            profileUsername.textContent = userData.username;
+            profileReferrals.textContent = userData.referrals;
+            updateBalance();
+            
+            // Проверка активного буста
+            checkActiveBoost();
+            
+            // Клик по звезде
+            clickerBtn.addEventListener('click', () => {
+                // Анимация
+                clickerBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => clickerBtn.style.transform = 'scale(1)', 100);
+                
+                // Добавляем звезды
+                userData.coins += 0.1 * userData.boostMultiplier;
+                updateBalance();
+                localStorage.setItem('starCoins', userData.coins);
+            });
+            
+            // Клик по балансу
+            balanceBtn.addEventListener('click', () => {
+                withdrawModal.style.display = 'flex';
+            });
+            
+            // Закрытие модального окна
+            closeModal.addEventListener('click', () => {
+                withdrawModal.style.display = 'none';
+            });
+            
+            // Кнопки вывода
+            withdrawBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const amount = parseInt(this.getAttribute('data-amount'));
+                    if (userData.coins >= amount) {
+                        userData.coins -= amount;
+                        updateBalance();
+                        localStorage.setItem('starCoins', userData.coins);
+                        alert(`Выведено ${amount} ⭐`);
+                    } else {
+                        alert('Недостаточно звезд!');
+                    }
+                });
+            });
+            
+            // Покупка бустов
+            boostButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const price = parseInt(this.getAttribute('data-price'));
+                    const multiplier = parseInt(this.getAttribute('data-multiplier'));
+                    
+                    if (userData.coins >= price) {
+                        userData.coins -= price;
+                        userData.boostMultiplier = multiplier;
+                        userData.boostEndTime = Date.now() + 30000; // 30 секунд
+                        
+                        // Обновляем отображение
+                        updateBalance();
+                        updateBoostInfo();
+                        this.disabled = true;
+                        this.textContent = 'АКТИВЕН';
+                        this.style.background = 'linear-gradient(45deg, #4CAF50, #8BC34A)';
+                        
+                        // Запускаем таймер
+                        setTimeout(() => {
+                            if (userData.boostMultiplier === multiplier) {
+                                userData.boostMultiplier = 1;
+                                updateBoostInfo();
+                            }
+                            this.disabled = false;
+                            this.textContent = `${price} ⭐`;
+                            this.style.background = 'linear-gradient(45deg, #9C27B0, #E91E63)';
+                        }, 30000);
+                        
+                        localStorage.setItem('starCoins', userData.coins);
+                    } else {
+                        alert('Недостаточно звезд!');
+                    }
+                });
+            });
+            
+            // Скрытие прелоадера
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    preloader.style.opacity = '0';
+                    preloader.style.visibility = 'hidden';
+                }, 2000);
+            });
+            
+            // Обработчик для кнопки вывода в профиле
+            profileWithdrawBtn.addEventListener('click', function() {
+                withdrawModal.style.display = 'flex';
+            });
+            
+            // Приглашение друзей
+            inviteBtn.addEventListener('click', () => {
+                const referralLink = `https://t.me/${tg.initDataUnsafe.user?.username || 'your_bot'}?start=ref_${userData.referralCode}`;
+                
+                if (tg.platform !== 'unknown') {
+                    tg.showAlert(`Ваша реферальная ссылка:\n${referralLink}`);
+                    
+                    // Копируем в буфер обмена
+                    navigator.clipboard.writeText(referralLink).then(() => {
+                        tg.showAlert("Ссылка скопирована!");
+                    });
+                } else {
+                    prompt('Скопируйте ссылку для приглашения:', referralLink);
+                }
+            });
+            
+            // Переключение разделов
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const sectionId = item.getAttribute('data-section');
+                    
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    sections.forEach(section => section.classList.remove('active'));
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+            
+            // Проверка реферальной ссылки
+            checkReferral();
+        }
+        
+        // Обновление баланса
+        function updateBalance() {
+            const coins = userData.coins.toFixed(1);
+            coinsDisplay.textContent = coins;
+            headerBalance.textContent = coins;
+            profileCoins.textContent = coins + ' ⭐';
+            localStorage.setItem('starCoins', userData.coins);
+        }
+        
+        // Обновление информации о бусте
+        function updateBoostInfo() {
+            if (userData.boostMultiplier > 1) {
+                boostInfo.textContent = `Буст x${userData.boostMultiplier} активен`;
+                profileBoost.textContent = `x${userData.boostMultiplier} (активен)`;
+            } else {
+                boostInfo.textContent = 'Без буста';
+                profileBoost.textContent = 'Нет';
+            }
+        }
+        
+        // Проверка активного буста
+        function checkActiveBoost() {
+            if (userData.boostEndTime > Date.now()) {
+                const timeLeft = Math.ceil((userData.boostEndTime - Date.now()) / 1000);
+                boostInfo.textContent = `Буст x${userData.boostMultiplier} (${timeLeft} сек)`;
+                
+                // Запускаем таймер
+                const timer = setInterval(() => {
+                    const timeLeft = Math.ceil((userData.boostEndTime - Date.now()) / 1000);
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        userData.boostMultiplier = 1;
+                        updateBoostInfo();
+                        
+                        // Восстанавливаем кнопки бустов
+                        boostButtons.forEach(btn => {
+                            if (btn.disabled) {
+                                const price = btn.getAttribute('data-price');
+                                btn.disabled = false;
+                                btn.textContent = `${price} ⭐`;
+                                btn.style.background = 'linear-gradient(45deg, #9C27B0, #E91E63)';
+                            }
+                        });
+                    } else {
+                        boostInfo.textContent = `Буст x${userData.boostMultiplier} (${timeLeft} сек)`;
+                    }
+                }, 1000);
+            } else {
+                updateBoostInfo();
+            }
+        }
+        
+        // Проверка реферальной ссылки
+        function checkReferral() {
+            if (tg.initData) {
+                const initData = new URLSearchParams(tg.initData);
+                const startParam = initData.get('start');
+                
+                if (startParam && startParam.startsWith('ref_')) {
+                    const referrerCode = startParam.split('_')[1];
+                    if (referrerCode && referrerCode !== userData.referralCode) {
+                        // Отправляем данные на сервер
+                        if (typeof tg.sendData === 'function') {
+                            tg.sendData(JSON.stringify({
+                                type: 'new_referral',
+                                referrer_code: referrerCode,
+                                user_id: userData.id
+                            }));
+                        }
+                        
+                        // Начисляем бонус (имитация)
+                        setTimeout(() => {
+                            userData.coins += 10;
+                            userData.referrals += 1;
+                            updateBalance();
+                            profileReferrals.textContent = userData.referrals;
+                            localStorage.setItem('referralsCount', userData.referrals);
+                            tg.showAlert("Вы получили 10 ⭐ за приглашение!");
+                        }, 1500);
+                    }
+                }
+            }
+        }
+        
+        // Запуск
+        init();
+    </script>
+</body>
+</html>
